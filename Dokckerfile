@@ -1,0 +1,26 @@
+FROM centos:7.5.1804
+
+ENV SONAR_SCANNER_CLI_VERSION 3.2.0.1227
+
+ENV NODE_VERSION v9.11.1
+
+RUN mkdir -p /opt \
+    && yum -y install wget unzip \
+    && wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${SONAR_SCANNER_CLI_VERSION}-linux.zip -O /opt/sonar-scanner-cli-${SONAR_SCANNER_CLI_VERSION}-linux.zip \
+    && unzip /opt/sonar-scanner-cli-${SONAR_SCANNER_CLI_VERSION}-linux.zip -d /opt/ \
+    && rm -rf /opt/sonar-scanner-cli-${SONAR_SCANNER_CLI_VERSION}-linux.zip
+
+RUN ln -s /opt/sonar-scanner-${SONAR_SCANNER_CLI_VERSION}-linux/bin/sonar-scanner /usr/bin/sonar-scanner
+
+RUN wget --no-check-certificate https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-linux-x64.tar.xz -O /opt/node-${NODE_VERSION}-linux-x64.tar.xz \
+    && tar -xvf  /opt/node-${NODE_VERSION}-linux-x64.tar.xz -C /opt/ \
+    && ln -s /opt/node-${NODE_VERSION}-linux-x64/bin/node /usr/bin/node \
+    && ln -s /opt/node-${NODE_VERSION}-linux-x64/bin/npm /usr/bin/npm \
+    && npm -g install typescript \
+    && ln -s /opt/node-${NODE_VERSION}-linux-x64/bin/tsc /usr/bin/tsc
+
+ENV NODE_PATH /opt/node-${NODE_VERSION}-linux-x64/lib/node_modules/
+
+RUN yum -y install git
+
+CMD ["sonar-scanner"]
